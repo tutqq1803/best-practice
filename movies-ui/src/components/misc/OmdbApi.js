@@ -6,7 +6,7 @@ export const omdbApi = {
 }
 
 function getMovies(text) {
-  return instance.get(`?apikey=${process.env.REACT_APP_OMDB_API_KEY}&t=${encodeURI(text)}`)
+  return instance.get(`?apikey=${process.env.REACT_APP_OMDB_API_KEY}&i=${encodeURI(text)}`)
 }
 
 // -- Axios
