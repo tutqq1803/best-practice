@@ -1,37 +1,41 @@
-# Programming Best Practices Project
+# Best Practices & Integrations
 
-The goal of this project is to practice with Spring boot, React, Redis, MongoDB, Keycloak and more.
+## Table of Content
 
-## Project diagram
+---
 
-![project-diagram](documentation/project-diagram.png)
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Installation and Getting Started](#installation-and-getting-started)
+  - [Start Environment](#1-start-environment)
+  - [Running app](#2-running-app)
+  - [Applications URLs](#3-applications-urls)
+  - [Demo](#4-demo)
+- [Service Structure](#service-structure)
+  - [Project diagram](#1-project-diagram)
+  - [Applications](#2-applications)
+    - [Movies-api](#movies-api)
+    - [Movies-ui](#movies-ui)
+    - [Keycloak](#keycloak)
+    - [Redis](#redis)
+- [Development Practice](#development-practice)
+- [Integrations](#integrations)
+  - [Testing](#1-testing)
+    - [Unit Testing](#11-unit-testing)
+    - [Integration Testing](#12-integration-testing)
+  - [Development Accelerators](#2-development-accelerators)
+    - [Mapstruct](#21-mapstruct)
+    - [Lombok](#22-lombok)
+  - [Swagger API Documentation](#3-swagger-api-documentation)
+  - [Platforms](#4-platforms)
+    - [Docker](#41-docker)
 
-## Applications
 
-- ### movies-api
+---
 
-  `Spring Boot` Web Java backend application that exposes a REST API to manage **movies**. 
-Its secured endpoints can just be accessed if an access token (JWT) issued by `Keycloak` is provided.
-  
-  `movies-api` stores its data in a [`Mongo`](https://www.mongodb.com/) database.
+## Introduction
 
-  `movie-api` has the following endpoints
-
-| Endpoint                                                          | Secured | Roles                        |
-|-------------------------------------------------------------------|---------|------------------------------|
-| `GET /api/userextras/me`                                          | Yes     | `MOVIES_MANAGER` and `USER`  |
-| `POST /api/userextras/me -d {avatar}`                             | Yes     | `MOVIES_MANAGER` and `USER`  | 
-| `GET /api/movies`                                                 | No      |                              |
-| `GET /api/movies/{imdbId}`                                        | No      |                              |
-| `POST /api/movies -d {"imdb","title","director","year","poster"}` | Yes     | `MOVIES_MANAGER`             |
-| `DELETE /api/movies/{imdbId}`                                     | Yes     | `MANAGE_MOVIES`              |
-| `POST /api/movies/{imdbId}/comments -d {"text"}`                  | Yes     | `MOVIES_MANAGER` and `USER`  |
-
-- ### movies-ui
-
-  `ReactJS` frontend application where `users` can see and comment movies and `admins` can manage movies. In order to access the application, `user` / `admin` must login using his/her username and password. Those credentials are handled by `Keycloak`. All the requests coming from `movies-ui` to secured endpoints in `movies-api` have a access token (JWT) that is generated when `user` / `admin` logs in.
-  
-  `movies-ui` uses [`Semantic UI React`](https://react.semantic-ui.com/) as CSS-styled framework.
+The goal of this project is to practice with `Spring boot`, `React`, `Redis`, `MongoDB`, `Keycloak` and more.
 
 ## Prerequisites
 
@@ -44,16 +48,14 @@ Its secured endpoints can just be accessed if an access token (JWT) issued by `K
 
   To use the `Wizard` option to search and add a movie, you need to get an API KEY from OMDb API. In order to do it, access https://www.omdbapi.com/apikey.aspx and follow the steps provided by the website.
 
-  Once you have the API KEY, create a file called `.env.local` in `springboot-react-keycloak/movies-ui` folder with the following content 
+  Once you have the API KEY, create a file called `.env.local` in `springboot-react-keycloak/movies-ui` folder with the following content
   ```
   REACT_APP_OMDB_API_KEY=<your-api-key>
   ```
 
-## PKCE
+## Installation and Getting Started
 
-As `Keycloak` supports [`PKCE`](https://tools.ietf.org/html/rfc7636) (`Proof Key for Code Exchange`) since version `7.0.0`, we are using it in this project. 
-
-## Start Environment
+### 1. Start Environment
 
 - In a terminal and inside `springboot-react-keycloak` root folder run
   ```
@@ -64,8 +66,7 @@ As `Keycloak` supports [`PKCE`](https://tools.ietf.org/html/rfc7636) (`Proof Key
   ```
   docker-compose ps
   ```
-
-## Running movies-app using Maven & Npm
+### 2. Running app
 
 - **movies-api**
 
@@ -99,16 +100,14 @@ As `Keycloak` supports [`PKCE`](https://tools.ietf.org/html/rfc7636) (`Proof Key
     ```
     npm start
     ```
-
-## Applications URLs
+### 3. Applications URLs
 
 | Application | URL                                   | Credentials                           |
 |-------------|---------------------------------------|---------------------------------------|
 | movie-api   | http://localhost:9080/swagger-ui.html | [Access Token](#getting-access-token) |
 | movie-ui    | http://localhost:3000                 | `admin/admin` or `user/user`          |
 | Keycloak    | http://localhost:8080/admin           | `admin/admin`                         |
-
-## Demo
+### 4. Demo
 
 - The gif below shows an `admin` logging in and adding one movie using the wizard feature
 
@@ -118,120 +117,186 @@ As `Keycloak` supports [`PKCE`](https://tools.ietf.org/html/rfc7636) (`Proof Key
 
   ![demo-user-github](documentation/demo-user-github.gif)
 
-## Testing movies-api endpoints
+## Service Structure
 
-You can manage movies by accessing directly `movies-api` endpoints using the Swagger website or `curl`. However, for the secured endpoints like `POST /api/movies`, `PUT /api/movies/{id}`, `DELETE /api/movies/{id}`, etc, you need to inform an access token issued by `Keycloak`.
+### 1. Project diagram
 
-### Getting Access Token
+![project-diagram](documentation/project-diagram.png)
 
-- Open a terminal
+### 2. Applications
 
-- Run the following commands to get the access token
-  ```
-  ACCESS_TOKEN="$(curl -s -X POST \
-    "http://localhost:8080/realms/company-services/protocol/openid-connect/token" \
-    -H "Content-Type: application/x-www-form-urlencoded" \
-    -d "username=admin" \
-    -d "password=admin" \
-    -d "grant_type=password" \
-    -d "client_id=movies-app" | jq -r .access_token)"
+- ### movies-api
 
-  echo $ACCESS_TOKEN
-  ```
-  > **Note**: In [jwt.io](https://jwt.io), you can decode and verify the `JWT` access token
+  `Spring Boot` Web Java backend application that exposes a REST API to manage **movies**.
+  Its secured endpoints can just be accessed if an access token (JWT) issued by `Keycloak` is provided.
 
-### Calling movies-api endpoints using curl
+  `movies-api` stores its data in a [`Mongo`](https://www.mongodb.com/) database.
 
-- Trying to add a movie without access token
-  ```
-  curl -i -X POST "http://localhost:9080/api/movies" \
-    -H "Content-Type: application/json" \
-    -d '{ "imdbId": "tt5580036", "title": "I, Tonya", "director": "Craig Gillespie", "year": 2017, "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg"}'
-  ```
+  `movie-api` has the following endpoints
 
-  It should return
-  ```
-  HTTP/1.1 401
-  ```
+| Endpoint                                                          | Secured | Roles                        |
+|-------------------------------------------------------------------|---------|------------------------------|
+| `GET /api/userextras/me`                                          | Yes     | `MOVIES_MANAGER` and `USER`  |
+| `POST /api/userextras/me -d {avatar}`                             | Yes     | `MOVIES_MANAGER` and `USER`  | 
+| `GET /api/movies`                                                 | No      |                              |
+| `GET /api/movies/{imdbId}`                                        | No      |                              |
+| `POST /api/movies -d {"imdb","title","director","year","poster"}` | Yes     | `MOVIES_MANAGER`             |
+| `DELETE /api/movies/{imdbId}`                                     | Yes     | `MANAGE_MOVIES`              |
+| `POST /api/movies/{imdbId}/comments -d {"text"}`                  | Yes     | `MOVIES_MANAGER` and `USER`  |
 
-- Trying again to add a movie, now with access token (obtained at #getting-access-token)
-  ```
-  curl -i -X POST "http://localhost:9080/api/movies" \
-    -H "Authorization: Bearer $ACCESS_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d '{ "imdbId": "tt5580036", "title": "I, Tonya", "director": "Craig Gillespie", "year": 2017, "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg"}'
-  ```
+- ### movies-ui
 
-  It should return
-  ```
-  HTTP/1.1 201
-  {
-    "imdbId": "tt5580036",
-    "title": "I, Tonya",
-    "director": "Craig Gillespie",
-    "year": "2017",
-    "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg"
-  }
-  ```
+  `ReactJS` frontend application where `users` can see and comment movies and `admins` can manage movies. In order to access the application, `user` / `admin` must login using his/her username and password. Those credentials are handled by `Keycloak`. All the requests coming from `movies-ui` to secured endpoints in `movies-api` have a access token (JWT) that is generated when `user` / `admin` logs in.
 
-- Getting the list of movies. This endpoint does not requires access token
-  ```
-  curl -i http://localhost:9080/api/movies
-  ```
+  `movies-ui` uses [`Semantic UI React`](https://react.semantic-ui.com/) as CSS-styled framework.
 
-  It should return
-  ```
-  HTTP/1.1 200
-  [
+- ### keycloak
+
+  As `Keycloak` supports [`PKCE`](https://tools.ietf.org/html/rfc7636) (`Proof Key for Code Exchange`) since version `7.0.0`, we are using it in this project.
+
+- ### redis
+
+## Development Practice
+
+At the core of the Cloud Native Practices in Software Engineering lies the Behavior Driven Development(BDD) and
+Test-Driven Development (TDD).<br/>
+While developing the code I followed BDD first approach where I wrote a failing feature/acceptance criteria thus
+driving our development through behavior and then followed by Test Driven Development.<br/>
+A feature is not considered as developed until all the Unit Tests (TDD) and feature (BDD) passes.
+
+![bdd-tdd-cycle](documentation/bdd-tdd-cycle.png)
+
+## Integrations
+
+### 1. Testing
+
+#### 1.1 Unit Testing
+-  // TODO: Update later
+
+
+#### 1.2 Integration Testing
+
+- #### Getting Access Token
+
+  - Open a terminal
+  - Run the following commands to get the access token
+    ```
+    ACCESS_TOKEN="$(curl -s -X POST \
+      "http://localhost:8080/realms/company-services/protocol/openid-connect/token" \
+      -H "Content-Type: application/x-www-form-urlencoded" \
+      -d "username=admin" \
+      -d "password=admin" \
+      -d "grant_type=password" \
+      -d "client_id=movies-app" | jq -r .access_token)"
+
+    echo $ACCESS_TOKEN
+    ```
+  >   **Note**: In [jwt.io](https://jwt.io), you can decode and verify the `JWT` access token
+
+- #### Calling movies-api endpoints using curl
+
+  - Trying to add a movie without access token
+    ```
+    curl -i -X POST "http://localhost:9080/api/movies" \
+      -H "Content-Type: application/json" \
+      -d '{ "imdbId": "tt5580036", "title": "I, Tonya", "director": "Craig Gillespie", "year": 2017, "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg"}'
+    ```
+
+    It should return
+    ```
+    HTTP/1.1 401
+    ```
+
+  - Trying again to add a movie, now with access token (obtained at #getting-access-token)
+    ```
+    curl -i -X POST "http://localhost:9080/api/movies" \
+      -H "Authorization: Bearer $ACCESS_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{ "imdbId": "tt5580036", "title": "I, Tonya", "director": "Craig Gillespie", "year": 2017, "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg"}'
+    ```
+
+    It should return
+    ```
+    HTTP/1.1 201
     {
       "imdbId": "tt5580036",
       "title": "I, Tonya",
       "director": "Craig Gillespie",
       "year": "2017",
-      "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg",
-      "comments": []
+      "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg"
     }
-  ]
-  ```
+    ```
 
-### Calling movies-api endpoints using Swagger
+  - Getting the list of movies. This endpoint does not require access token
+    ```
+    curl -i http://localhost:9080/api/movies
+    ```
 
-- Access `movies-api` Swagger website, http://localhost:9080/swagger-ui.html
+    It should return
+    ```
+    HTTP/1.1 200
+    [
+      {
+        "imdbId": "tt5580036",
+        "title": "I, Tonya",
+        "director": "Craig Gillespie",
+        "year": "2017",
+        "poster": "https://m.media-amazon.com/images/M/MV5BMjI5MDY1NjYzMl5BMl5BanBnXkFtZTgwNjIzNDAxNDM@._V1_SX300.jpg",
+        "comments": []
+      }
+    ]
+    ```
 
-- Click `Authorize` button.
+- #### Calling movies-api endpoints using Swagger
 
-- In the form that opens, paste the `access token` (obtained at [getting-access-token](#getting-access-token)) in the `Value` field. Then, click `Authorize` and `Close` to finalize.
+  - Access `movies-api` Swagger website, http://localhost:9080/swagger-ui.html
 
-- Done! You can now access the secured endpoints
+  - Click `Authorize` button.
 
-## Useful Commands
+  - In the form that opens, paste the `access token` (obtained at [getting-access-token](#getting-access-token)) in the `Value` field. Then, click `Authorize` and `Close` to finalize.
 
-- **MongoDB**
+  - Done! You can now access the secured endpoints
 
-  List all movies
-  ```
-  docker exec -it mongodb mongo moviesdb
-  db.movies.find()
-  ```
-  > Type `exit` to get out of MongoDB shell
 
-## Shutdown
+### 2. Development Accelerators
 
-- To stop `movies-api` and `movies-ui`, go to the terminals where they are running and press `Ctrl+C`
+#### [2.1 Mapstruct](https://mapstruct.org/)
 
-- To stop and remove docker-compose containers, network and volumes, go to a terminal and, inside `springboot-react-keycloak` root folder, run the command below
-  ```
-  docker-compose down -v
-  ```
+An excellent\* library for converting VO to DAO objects and vice versa.
+#### [2.2 Lombok](https://projectlombok.org/)
 
-## How to upgrade movies-ui dependencies to latest version
+Provides excellent annotations based support for Auto generation of methods, logging, Builders, Validation etc.
+We will be using below annotations during this exercise:<br/>
+@Data: Auto generates setters, getters, hashcode and toString methods<br/>
+@Slf4j: Just add this annotation on top of any Spring Bean and start using the log
+### 3. Swagger API Documentation
 
-- In a terminal, make sure you are in `springboot-react-keycloak/movies-ui` folder
 
-- Run the following commands
-  ```
-  npm upgrade
-  npm i -g npm-check-updates
-  ncu -u
-  npm install
-  ```
+With the latest version of swagger you just need to include a single dependency as below & that's it.
+```bash
+implementation "io.springfox:springfox-boot-starter:${swaggerVersion}"
+```
+
+although if you are using WebMvc then you would require to additionally add @EnableWebMvc as stated in doc [here.](https://springfox.github.io/springfox/docs/snapshot/)
+
+To test it locally start the application then Swagger UI documentation can be accessed by URL:
+
+```bash
+http://localhost:9080/swagger-ui.html
+```
+
+![](documentation/swagger-ui.png)
+Once application is deployed in a Platform the same documentation will be accessible by below URL:
+
+```bash
+http://[HOST_URL]/swagger-ui/index.html
+```
+
+### 4. Platforms
+
+#### 4.1 Docker
+-  // TODO: Update later
+
+
+
+
