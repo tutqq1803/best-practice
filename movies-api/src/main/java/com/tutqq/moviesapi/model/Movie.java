@@ -5,13 +5,14 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Document(collection = "movies")
-public class Movie {
+public class Movie implements Serializable {
 
     @Id
     private String imdbId;
@@ -23,7 +24,7 @@ public class Movie {
 
     @Data
     @AllArgsConstructor
-    public static class Comment {
+    public static class Comment implements Serializable {
         private String username;
         private String text;
         private LocalDateTime timestamp;
