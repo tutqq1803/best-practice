@@ -3,7 +3,6 @@
 ## Table of Content
 
 ---
-
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
 - [Installation and Getting Started](#installation-and-getting-started)
@@ -11,7 +10,7 @@
   - [Running app](#2-running-app)
   - [Applications URLs](#3-applications-urls)
   - [Demo](#4-demo)
-- [Service Structure](#service-structure)
+- [Infrastructure](#infrastructure)
   - [Project diagram](#1-project-diagram)
   - [Applications](#2-applications)
     - [Movies-api](#movies-api)
@@ -29,8 +28,6 @@
   - [Swagger API Documentation](#3-swagger-api-documentation)
   - [Platforms](#4-platforms)
     - [Docker](#41-docker)
-
-
 ---
 
 ## Introduction
@@ -117,7 +114,7 @@ The goal of this project is to practice with `Spring boot`, `React`, `Redis`, `M
 
   ![demo-user-github](documentation/demo-user-github.gif)
 
-## Service Structure
+## Infrastructure
 
 ### 1. Project diagram
 

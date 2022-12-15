@@ -4,6 +4,20 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/moviesdb
+  # ===============================
+  # = Redis configurations
+  # ===============================ß
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    pool:
+      max-active: 5
+      max-wait: -1
+      max-idle: 8
+      min-idle: 0
+    timeout: 3000
   main:
     allow-circular-references: true
   security:
