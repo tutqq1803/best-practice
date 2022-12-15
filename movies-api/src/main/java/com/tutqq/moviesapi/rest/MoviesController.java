@@ -1,5 +1,6 @@
 package com.tutqq.moviesapi.rest;
 
+import com.tutqq.moviesapi.config.SwaggerConfig;
 import com.tutqq.moviesapi.mapper.MovieMapper;
 import com.tutqq.moviesapi.model.Movie;
 import com.tutqq.moviesapi.rest.dto.AddCommentRequest;
@@ -7,26 +8,16 @@ import com.tutqq.moviesapi.rest.dto.CreateMovieRequest;
 import com.tutqq.moviesapi.rest.dto.MovieDto;
 import com.tutqq.moviesapi.rest.dto.UpdateMovieRequest;
 import com.tutqq.moviesapi.service.MovieService;
-import com.tutqq.moviesapi.config.SwaggerConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -40,7 +31,7 @@ public class MoviesController {
     public List<MovieDto> getMovies() {
         return movieService.getMovies().stream()
                 .map(movieMapper::toMovieDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping("/{imdbId}")
